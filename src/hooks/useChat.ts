@@ -45,12 +45,17 @@ export function useChat() {
         throw new Error(error.message || 'Failed to get response');
       }
 
+      // Log debug info from backend
+      if (data.debug) {
+        console.log('Backend Debug Info:', data.debug);
+      }
+
       const assistantMessage: Message = {
         id: crypto.randomUUID(),
         role: 'assistant',
         content: data.answer,
         citations: data.citations || [],
-        verified: data.verified || false,
+        verified: data.citations && data.citations.length > 0,
         timestamp: new Date(),
       };
 
