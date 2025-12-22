@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Copy, Check, BookOpen, User, Bot } from 'lucide-react';
+import { Copy, Check, BookOpen, User, Bot, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Message } from '@/types/chat';
 import { cn } from '@/lib/utils';
@@ -41,6 +41,14 @@ export function ChatMessage({ message, isLatest, onViewCitations }: ChatMessageP
             : 'bg-chat-assistant text-foreground border border-border'
         )}
       >
+        {/* Verified PDF Badge */}
+        {!isUser && message.verified && (
+          <div className="flex items-center gap-1.5 mb-2 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+            <ShieldCheck className="h-3.5 w-3.5" />
+            <span>Verified from PDF</span>
+          </div>
+        )}
+        
         <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
         
         {!isUser && (
