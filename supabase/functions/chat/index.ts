@@ -5,7 +5,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const REFUSAL_MESSAGE = "Information not found in materials.";
+const GENERAL_KNOWLEDGE_NOTE = "Based on general AI knowledge (not from uploaded materials).";
 const FILE_SEARCH_STORE = "fileSearchStores/scmknowledgebase-nijx1msnlqzm";
 
 interface Citation {
@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
 
     // Generate content with file search tool (JS camelCase)
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash-lite",
+      model: "gemini-1.5-flash",
       contents: [
         {
           role: "user",
@@ -66,7 +66,7 @@ Deno.serve(async (req) => {
         }
       ],
       config: {
-        systemInstruction: `Strict RAG assistant. Your only source is the File Search tool '${FILE_SEARCH_STORE}'. ALWAYS use it. If no data is returned, say exactly: 'Information not found in materials.'`,
+        systemInstruction: `You are a research assistant. FIRST, search the File Search tool. IF information is found in the tool, answer strictly using ONLY that information. DO NOT use your own knowledge if the tool returns an answer. ONLY if the tool returns no relevant information, then you may use your general knowledge to assist.`,
         temperature: 0,
         topK: 10,
         tools: [{
@@ -88,25 +88,25 @@ Deno.serve(async (req) => {
     console.log('Grounding check - hasGrounding:', hasGrounding);
     console.log('Grounding chunks count:', groundingChunks?.length || 0);
 
-    // If no grounding, return refusal with debug info
+    // Extract answer text
+    let answer = "";
+    if (response.candidates?.[0]?.content?.parts?.[0]?.text) {
+      answer = response.candidates[0].content.parts[0].text;
+    }
+
+    // If no grounding, return general knowledge response
     if (!hasGrounding) {
-      console.log('NO GROUNDING FOUND - returning refusal message');
+      console.log('NO GROUNDING FOUND - returning general knowledge response');
       const chatResponse: ChatResponse = {
-        answer: REFUSAL_MESSAGE,
+        answer: answer || "I couldn't find relevant information to answer your question.",
         citations: [],
         verified: false,
-        debug: `Error: 0 chunks retrieved for Store ID ${FILE_SEARCH_STORE}`
+        debug: `General Knowledge: 0 chunks retrieved for Store ID ${FILE_SEARCH_STORE}`
       };
       return new Response(
         JSON.stringify(chatResponse),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
-    }
-
-    // Extract answer text
-    let answer = REFUSAL_MESSAGE;
-    if (response.candidates?.[0]?.content?.parts?.[0]?.text) {
-      answer = response.candidates[0].content.parts[0].text;
     }
 
     // Extract citations from grounding_chunks
