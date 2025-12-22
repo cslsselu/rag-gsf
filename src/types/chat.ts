@@ -9,5 +9,6 @@ export interface Message {
   role: 'user' | 'assistant';
   content: string;
   citations?: Citation[];
+  verified?: boolean;
   timestamp: Date;
 }

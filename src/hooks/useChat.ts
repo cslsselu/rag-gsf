@@ -50,6 +50,7 @@ export function useChat() {
         role: 'assistant',
         content: data.answer,
         citations: data.citations || [],
+        verified: data.verified || false,
         timestamp: new Date(),
       };
 
