@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
 
     // Generate content with file search tool (JS camelCase)
     const response = await ai.models.generateContent({
-      model: "models/gemini-2.5-flash-lite",
+      model: "gemini-2.5-flash",
       contents: [
         {
           role: "user",
