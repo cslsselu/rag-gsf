@@ -66,7 +66,7 @@ Deno.serve(async (req) => {
         }
       ],
       config: {
-        systemInstruction: `You are a research assistant. FIRST, search the File Search tool. IF information is found in the tool, answer strictly using ONLY that information. DO NOT use your own knowledge if the tool returns an answer. ONLY if the tool returns no relevant information, then you may use your general knowledge to assist.`,
+        systemInstruction: `You are a research assistant using Google File Search. Always query the File Search tool first. Retrieved chunks are optional evidence, not mandatory sources. Use retrieved content ONLY if it directly answers the user's question. If retrieved chunks are loosely related, incomplete, tangential, or do not contain the actual answer, treat this as NO RESULT and ignore the PDFs. In such cases, answer using general knowledge. Do NOT mention, summarize, reference, or quote irrelevant PDF content. Never produce hybrid answers that mix unrelated PDF excerpts with general knowledge. Prioritize correctness and clarity over forced grounding.`,
         temperature: 0,
         topK: 10,
         tools: [{
