@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
 
     // Generate content with file search tool (JS camelCase)
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash-lite",
+      model: "gemini-2.5-flash",
       contents: [
         {
           role: "user",
@@ -109,9 +109,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Extract citations from grounding_chunks
+    // Extract citations from grounding_chunks (limit to first 4)
     const citations: Citation[] = [];
-    for (const chunk of groundingChunks) {
+    const chunksToProcess = groundingChunks.slice(0, 4);
+    for (const chunk of chunksToProcess) {
       if (chunk.retrievedContext) {
         citations.push({
           title: chunk.retrievedContext.title || 'PDF Document',
