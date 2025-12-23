@@ -98,15 +98,67 @@ Deno.serve(async (req) => {
       answer = response.candidates[0].content.parts[0].text;
     }
 
-    // If no actual grounding supports, return general knowledge response
-    // (even if chunks were retrieved but not used)
-    if (!hasActualGrounding) {
-      console.log('NO GROUNDING SUPPORTS - returning general knowledge response');
+    // Check if the answer indicates PDFs don't contain the requested information
+    const answerLower = answer.toLowerCase();
+    const noPdfAnswerPatterns = [
+      "does not explicitly contain",
+      "does not explicitly state",
+      "does not explicitly specify",
+      "does not specify",
+      "does not contain",
+      "does not mention",
+      "does not state",
+      "do not explicitly contain",
+      "do not explicitly state",
+      "do not explicitly specify",
+      "do not specify",
+      "do not contain",
+      "do not mention",
+      "doesn't explicitly contain",
+      "doesn't explicitly state",
+      "doesn't explicitly specify",
+      "doesn't specify",
+      "doesn't contain",
+      "doesn't mention",
+      "don't explicitly contain",
+      "don't explicitly state",
+      "don't specify",
+      "don't contain",
+      "don't mention",
+      "no specific rule",
+      "no rule number",
+      "not specified in",
+      "not mentioned in",
+      "not found in",
+      "no information about",
+      "no explicit information",
+      "cannot find",
+      "could not find",
+      "unable to find",
+      "not available in the",
+      "not provided in the",
+      "the pdf does not",
+      "the pdfs do not",
+      "the document does not",
+      "the documents do not",
+      "the uploaded",
+      "the materials do not",
+      "based on general",
+      "using general knowledge"
+    ];
+    
+    const indicatesNoPdfAnswer = noPdfAnswerPatterns.some(pattern => answerLower.includes(pattern));
+    console.log('Answer indicates no PDF answer:', indicatesNoPdfAnswer);
+
+    // If no actual grounding supports OR answer indicates PDFs lack the info, return general knowledge response
+    if (!hasActualGrounding || indicatesNoPdfAnswer) {
+      const reason = indicatesNoPdfAnswer ? 'Answer indicates PDFs lack info' : 'No grounding supports';
+      console.log(`${reason} - returning general knowledge response`);
       const chatResponse: ChatResponse = {
         answer: answer || "I couldn't find relevant information to answer your question.",
         citations: [],
         verified: false,
-        debug: `General Knowledge: ${groundingChunks?.length || 0} chunks retrieved but not used`
+        debug: `General Knowledge: ${reason}`
       };
       return new Response(
         JSON.stringify(chatResponse),
