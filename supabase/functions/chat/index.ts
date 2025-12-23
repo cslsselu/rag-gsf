@@ -80,13 +80,17 @@ Deno.serve(async (req) => {
     console.log('Gemini response received');
     console.log('Full response:', JSON.stringify(response, null, 2));
 
-    // Check grounding_chunks from response
+    // Check grounding metadata from response
     const groundingMetadata = response.candidates?.[0]?.groundingMetadata;
     const groundingChunks = groundingMetadata?.groundingChunks;
-    const hasGrounding = groundingChunks && Array.isArray(groundingChunks) && groundingChunks.length > 0;
+    const groundingSupports = groundingMetadata?.groundingSupports;
+    
+    // Only consider grounded if there are actual supports linking answer to chunks
+    const hasActualGrounding = groundingSupports && Array.isArray(groundingSupports) && groundingSupports.length > 0;
 
-    console.log('Grounding check - hasGrounding:', hasGrounding);
-    console.log('Grounding chunks count:', groundingChunks?.length || 0);
+    console.log('Grounding check - chunks:', groundingChunks?.length || 0);
+    console.log('Grounding check - supports:', groundingSupports?.length || 0);
+    console.log('Grounding check - hasActualGrounding:', hasActualGrounding);
 
     // Extract answer text
     let answer = "";
@@ -94,14 +98,15 @@ Deno.serve(async (req) => {
       answer = response.candidates[0].content.parts[0].text;
     }
 
-    // If no grounding, return general knowledge response
-    if (!hasGrounding) {
-      console.log('NO GROUNDING FOUND - returning general knowledge response');
+    // If no actual grounding supports, return general knowledge response
+    // (even if chunks were retrieved but not used)
+    if (!hasActualGrounding) {
+      console.log('NO GROUNDING SUPPORTS - returning general knowledge response');
       const chatResponse: ChatResponse = {
         answer: answer || "I couldn't find relevant information to answer your question.",
         citations: [],
         verified: false,
-        debug: `General Knowledge: 0 chunks retrieved for Store ID ${FILE_SEARCH_STORE}`
+        debug: `General Knowledge: ${groundingChunks?.length || 0} chunks retrieved but not used`
       };
       return new Response(
         JSON.stringify(chatResponse),
@@ -111,7 +116,7 @@ Deno.serve(async (req) => {
 
     // Extract citations from grounding_chunks (limit to first 4)
     const citations: Citation[] = [];
-    const chunksToProcess = groundingChunks.slice(0, 4);
+    const chunksToProcess = (groundingChunks || []).slice(0, 4);
     for (const chunk of chunksToProcess) {
       if (chunk.retrievedContext) {
         citations.push({
