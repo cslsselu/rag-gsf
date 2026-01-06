@@ -6,7 +6,6 @@ const corsHeaders = {
 };
 
 const GENERAL_KNOWLEDGE_NOTE = "Based on general AI knowledge (not from uploaded materials).";
-const FILE_SEARCH_STORE = "fileSearchStores/scmknowledgebase-nijx1msnlqzm";
 
 interface Citation {
   title: string;
@@ -31,12 +30,21 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY') || Deno.env.get('GOOGLE_API_KEY');
+    const GEMINI_API_KEY = Deno.env.get('LovableRag');
+    const FILE_SEARCH_STORE_ID = Deno.env.get('GOOGLE_FILE_SEARCH_STORE_ID');
 
     if (!GEMINI_API_KEY) {
-      console.error('GEMINI_API_KEY is not configured');
+      console.error('LovableRag API key is not configured');
       return new Response(
-        JSON.stringify({ error: 'GEMINI_API_KEY is not configured' }),
+        JSON.stringify({ error: 'LovableRag API key is not configured' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!FILE_SEARCH_STORE_ID) {
+      console.error('GOOGLE_FILE_SEARCH_STORE_ID is not configured');
+      return new Response(
+        JSON.stringify({ error: 'GOOGLE_FILE_SEARCH_STORE_ID is not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -51,7 +59,7 @@ Deno.serve(async (req) => {
     }
 
     console.log('Processing message:', message);
-    console.log('Using file search store:', FILE_SEARCH_STORE);
+    console.log('Using file search store:', FILE_SEARCH_STORE_ID);
 
     // Initialize the 2025 SDK
     const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
@@ -71,7 +79,7 @@ Deno.serve(async (req) => {
         topK: 10,
         tools: [{
           fileSearch: {
-            fileSearchStoreNames: [FILE_SEARCH_STORE]
+            fileSearchStoreNames: [FILE_SEARCH_STORE_ID]
           }
         }]
       }
