@@ -153,15 +153,30 @@ Deno.serve(async (req) => {
     const indicatesNoPdfAnswer = noPdfAnswerPatterns.some(pattern => answerLower.includes(pattern));
     console.log('Answer indicates no PDF answer:', indicatesNoPdfAnswer);
 
-    // If no actual grounding supports OR answer indicates PDFs lack the info, return general knowledge response
-    if (!hasActualGrounding || indicatesNoPdfAnswer) {
-      const reason = indicatesNoPdfAnswer ? 'Answer indicates PDFs lack info' : 'No grounding supports';
-      console.log(`${reason} - returning general knowledge response`);
+    // Only fall back to general knowledge if BOTH: no grounding supports AND answer text signals no PDF content
+    // If Gemini returned real grounding supports, always trust those — don't let text patterns override real grounding
+    if (!hasActualGrounding && indicatesNoPdfAnswer) {
+      console.log('No grounding supports + answer signals no PDF content - returning general knowledge response');
       const chatResponse: ChatResponse = {
         answer: answer || "I couldn't find relevant information to answer your question.",
         citations: [],
         verified: false,
-        debug: `General Knowledge: ${reason}`
+        debug: 'General Knowledge: No grounding supports and answer indicates PDFs lack info'
+      };
+      return new Response(
+        JSON.stringify(chatResponse),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // If no grounding at all (and answer doesn't explicitly say PDFs lack info), still return as general knowledge
+    if (!hasActualGrounding) {
+      console.log('No grounding supports - returning general knowledge response');
+      const chatResponse: ChatResponse = {
+        answer: answer || "I couldn't find relevant information to answer your question.",
+        citations: [],
+        verified: false,
+        debug: 'General Knowledge: No grounding supports'
       };
       return new Response(
         JSON.stringify(chatResponse),
