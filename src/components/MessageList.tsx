@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Message } from '@/types/chat';
 import { ChatMessage } from './ChatMessage';
-import { BookOpen } from 'lucide-react';
 
 interface MessageListProps {
   messages: Message[];
@@ -29,14 +28,11 @@ export function MessageList({ messages, searchQuery, onViewCitations, isLoading 
     return (
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="text-center max-w-md animate-fade-in">
-          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-            <BookOpen className="h-8 w-8 text-primary" />
-          </div>
           <h3 className="font-serif text-xl font-semibold text-foreground mb-2">
-            Welcome to Assisted Learning
+            Start with a question you have about your course
           </h3>
           <p className="text-muted-foreground text-sm">
-            Ask questions about your uploaded materials. I'll search through the documents to find accurate answers and cite my sources.
+            Get clear answers backed by your documents
           </p>
         </div>
       </div>

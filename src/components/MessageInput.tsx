@@ -57,7 +57,7 @@ export function MessageInput({ onSend, isLoading, getCooldownRemaining }: Messag
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask a question about your materials..."
+            placeholder="..."
             className="min-h-[52px] max-h-[200px] resize-none bg-background border-border focus:ring-primary/20 pr-4"
             rows={1}
           />
@@ -76,9 +76,6 @@ export function MessageInput({ onSend, isLoading, getCooldownRemaining }: Messag
           )}
         </Button>
       </div>
-      <p className="mt-2 text-xs text-muted-foreground text-center">
-        Press Enter to send • Shift + Enter for new line
-      </p>
     </form>
   );
 }
