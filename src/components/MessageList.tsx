@@ -28,12 +28,9 @@ export function MessageList({ messages, searchQuery, onViewCitations, isLoading 
     return (
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="text-center max-w-md animate-fade-in">
-          <h3 className="font-serif text-xl font-semibold text-foreground mb-2">
+          <h3 className="font-serif text-xl font-semibold text-foreground">
             Start with a question you have about your course
           </h3>
-          <p className="text-muted-foreground text-sm">
-            Get clear answers backed by your documents
-          </p>
         </div>
       </div>
     );
