@@ -77,3 +77,5 @@ export function MessageInput({ onSend, isLoading, getCooldownRemaining }: Messag
         </Button>
       </div>
     </form>
+  );
+}
