@@ -57,28 +57,10 @@ export function MessageInput({ onSend, isLoading, getCooldownRemaining }: Messag
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask a question about your materials..."
+            placeholder="..."
             className="min-h-[52px] max-h-[200px] resize-none bg-background border-border focus:ring-primary/20 pr-4"
             rows={1}
           />
-        </div>
-        <Button
-          type="submit"
-          disabled={isDisabled}
-          className="h-[52px] px-5 gradient-warm text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-50"
-        >
-          {isLoading ? (
-            <Loader2 className="h-5 w-5 animate-spin" />
-          ) : cooldown > 0 ? (
-            <span className="text-sm font-medium">{cooldown}s</span>
-          ) : (
-            <Send className="h-5 w-5" />
-          )}
-        </Button>
-      </div>
-      <p className="mt-2 text-xs text-muted-foreground text-center">
-        Press Enter to send • Shift + Enter for new line
-      </p>
     </form>
   );
 }

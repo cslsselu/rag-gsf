@@ -17,11 +17,8 @@ const Index = () => {
             </div>
             <div>
               <h1 className="font-serif text-xl font-bold text-foreground">
-                Assisted Learning
+                Learning Assistant
               </h1>
-              <p className="text-xs text-muted-foreground">
-                AI-powered study companion
-              </p>
             </div>
           </div>
           
